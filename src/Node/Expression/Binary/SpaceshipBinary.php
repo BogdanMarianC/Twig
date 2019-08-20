@@ -15,7 +15,24 @@ use Twig\Compiler;
 
 class SpaceshipBinary extends AbstractBinary
 {
-    public function operator(Compiler $compiler)
+    public function compile(Compiler $compiler): void
+    {
+        if (\PHP_VERSION_ID >= 80000) {
+            parent::compile($compiler);
+
+            return;
+        }
+
+        $compiler
+            ->raw('twig_compare(')
+            ->subcompile($this->getNode('right'))
+            ->raw(', ')
+            ->subcompile($this->getNode('left'))
+            ->raw(')')
+        ;
+    }
+
+    public function operator(Compiler $compiler): Compiler
     {
         return $compiler->raw('<=>');
     }
